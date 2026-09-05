@@ -60,6 +60,32 @@
     revealEls.forEach(function(el){ el.classList.add('in'); });
   }
 
+  /* ---------- hero brand card (home page) ---------- */
+  var brandcard = document.getElementById('heroBrandcard');
+  if(brandcard){
+    var hbcSlides = brandcard.querySelectorAll('.hbc-slide');
+    var hbcDots = brandcard.querySelectorAll('.hbc-dot');
+    var hbcIndex = 0;
+    var hbcTimer;
+    function showSlide(i){
+      hbcIndex = i;
+      hbcSlides.forEach(function(s, idx){ s.classList.toggle('active', idx === i); });
+      hbcDots.forEach(function(d, idx){ d.classList.toggle('active', idx === i); });
+    }
+    function nextSlide(){ showSlide((hbcIndex + 1) % hbcSlides.length); }
+    function restartTimer(){
+      clearInterval(hbcTimer);
+      hbcTimer = setInterval(nextSlide, 4500);
+    }
+    hbcDots.forEach(function(dot){
+      dot.addEventListener('click', function(){
+        showSlide(parseInt(dot.getAttribute('data-i'), 10));
+        restartTimer();
+      });
+    });
+    if(hbcSlides.length > 1) restartTimer();
+  }
+
   /* ---------- focus tabs (home page) ---------- */
   var tabs = document.querySelectorAll('.focus-tab');
   var panels = document.querySelectorAll('.focus-panel');
@@ -160,11 +186,31 @@
   if(form){
     form.addEventListener('submit', function(e){
       e.preventDefault();
-      var name = form.querySelector('[name="name"]').value.trim();
-      var email = form.querySelector('[name="email"]').value.trim();
-      var message = form.querySelector('[name="message"]').value.trim();
-      var subject = encodeURIComponent('Enquiry from ' + (name || 'website visitor'));
-      var body = encodeURIComponent(message + '\n\n— ' + name + ' (' + email + ')');
+      var field = function(name){
+        var el = form.querySelector('[name="' + name + '"]');
+        return el ? el.value.trim() : '';
+      };
+      var name = field('name');
+      var email = field('email');
+      var message = field('message');
+
+      var lines = [];
+      var pushIf = function(label, value){ if(value) lines.push(label + ': ' + value); };
+      pushIf('Company', field('company'));
+      pushIf('Work Email', email);
+      pushIf('Telephone Number', field('phone'));
+      pushIf('Property Type', field('propertyType'));
+      pushIf('Service Required', field('serviceRequired'));
+      pushIf('Preferred Cleaning Frequency', field('frequency'));
+      pushIf('Site Address', field('siteAddress'));
+
+      var bodyParts = [];
+      if(lines.length) bodyParts.push(lines.join('\n'));
+      if(message) bodyParts.push('Requirements:\n' + message);
+      bodyParts.push('— ' + name + (email ? ' (' + email + ')' : ''));
+
+      var subject = encodeURIComponent('Cleaning quote enquiry from ' + (name || 'website visitor'));
+      var body = encodeURIComponent(bodyParts.join('\n\n'));
       var success = document.querySelector('.form-success');
       if(success) success.classList.add('show');
       window.location.href = 'mailto:info@psgclimited.com?subject=' + subject + '&body=' + body;
