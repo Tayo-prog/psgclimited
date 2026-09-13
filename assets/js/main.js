@@ -213,7 +213,7 @@
       var body = encodeURIComponent(bodyParts.join('\n\n'));
       var success = document.querySelector('.form-success');
       if(success) success.classList.add('show');
-      window.location.href = 'mailto:info@psgclimited.com?subject=' + subject + '&body=' + body;
+      window.location.href = 'mailto:info@whiteshieldcleaning.com?subject=' + subject + '&body=' + body;
       form.reset();
     });
   }
